@@ -128,17 +128,25 @@ h1 {
 }
 #crystal-map { display: block; width: 100%; height: auto; aspect-ratio: 887 / 1774; user-select: none; -webkit-user-select: none; }
 #crystal-map image { user-select: none; -webkit-user-drag: none; }
-.location { cursor: pointer; outline: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.location { cursor: pointer; outline: none; touch-action: pan-y pinch-zoom; -webkit-tap-highlight-color: transparent; }
 .location .hit-area { fill: transparent; stroke: none; pointer-events: all; }
 .location .selection-underlay,
 .location .selection-outline,
 .location .focus-outline,
-.location .selection-check { display: none; pointer-events: none; }
+.location .selection-check,
+.location .selection-absent-mark { display: none; pointer-events: none; }
 .location .selection-underlay { fill: #a4f4ff; fill-opacity: .23; stroke: #09151a; stroke-width: 13; }
 .location .selection-outline { fill: none; stroke: #bcf6ff; stroke-width: 6; }
-.location.is-selected .selection-underlay,
-.location.is-selected .selection-outline,
-.location.is-selected .selection-check { display: block; }
+.location.is-present .selection-underlay,
+.location.is-present .selection-outline,
+.location.is-present .selection-check,
+.location.is-absent .selection-underlay,
+.location.is-absent .selection-outline,
+.location.is-absent .selection-absent-mark { display: block; }
+.location.is-absent .selection-underlay { fill: #ff6e75; fill-opacity: .23; stroke: #2f090d; }
+.location.is-absent .selection-outline { stroke: #ff8c92; stroke-dasharray: 11 7; }
+.location .selection-absent-mark circle { fill: #f97980; stroke: #310b11; stroke-width: 4; }
+.location .selection-absent-mark path { fill: none; stroke: #29090b; stroke-width: 5; stroke-linecap: round; }
 .location .focus-outline { fill: none; stroke: #f9df72; stroke-width: 7; stroke-dasharray: 12 8; }
 .location:focus-visible .focus-outline { display: block; }
 .location .selection-check circle { fill: #b6f3ff; stroke: #102d37; stroke-width: 4; }

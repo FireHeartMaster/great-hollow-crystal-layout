@@ -21,7 +21,7 @@
         <div class="toolbar-actions">
           <div class="toolbar-status" id="mobile-status-panel" role="status" aria-live="polite" aria-atomic="true">
             <strong id="mobile-status-title">4 possible</strong>
-            <span id="mobile-status-detail">0 confirmed</span>
+            <span id="mobile-status-detail">0 present · 0 empty</span>
           </div>
           <button class="reset-button mobile-reset" id="mobile-reset-button" data-reset-selections type="button" aria-label="Reset crystal selections" title="Reset crystal selections">
             <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -31,7 +31,7 @@
           </button>
         </div>
       </div>
-      <p class="toolbar-instruction">Tap confirmed crystals. Tap again to undo.</p>
+      <p class="toolbar-instruction">Tap = present · Hold = empty · Tap a mark to undo.</p>
     </header>
 
     <aside class="controls" aria-label="Crystal layout controls">
@@ -39,7 +39,7 @@
         <p class="eyebrow">ELDEN RING NIGHTREIGN <span aria-hidden="true">/</span> FIELD GUIDE</p>
         <h1>Great Hollow<br>Crystal Layout</h1>
         <h2 class="mobile-guide-heading">Guide &amp; legend</h2>
-        <p class="instructions">Tap every location where you confirm a crystal. Tap again to undo.</p>
+        <p class="instructions">Tap a location to confirm a crystal. Hold it for half a second to mark it empty. Tap a marked location to undo.</p>
       </header>
 
       <section class="layout-panel" aria-labelledby="layout-heading">
@@ -69,10 +69,10 @@
           </svg>
           <span>Reset selections</span>
         </button>
-        <span class="selection-counter" id="selection-count">0 confirmed</span>
+        <span class="selection-counter" id="selection-count">0 present · 0 empty</span>
       </div>
-      <p class="hint"><strong>Observation only.</strong> Select a spot only when you see a crystal there, not when it is empty.</p>
-      <p class="mobile-star-note"><span class="star-key" aria-hidden="true">✳</span> Yellow asterisks mark surface spots unique to one layout. A bright outline and check mark indicate a confirmed crystal location.</p>
+      <p class="hint"><strong>Two observations.</strong> Tap for a crystal present (blue check). Hold for an empty position (red ×). Tap a marked position to clear it. Keyboard: Enter/Space = present; X = empty.</p>
+      <p class="mobile-star-note"><span class="star-key" aria-hidden="true">✳</span> Yellow asterisks mark surface spots unique to one layout. A blue check means present; a red × means empty. Tap either to clear.</p>
     </aside>
 
     <section class="map-column" aria-labelledby="map-heading">
@@ -81,14 +81,14 @@
         <span>Surface + Underground</span>
       </div>
       <div class="map-frame">
-        <svg id="crystal-map" viewBox="0 0 887 1774" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Great Hollow interactive crystal map. Select locations with a confirmed crystal." preserveAspectRatio="xMidYMid meet">
+        <svg id="crystal-map" viewBox="0 0 887 1774" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Great Hollow interactive crystal map. Tap a location for present; hold for empty; tap a mark to clear it." preserveAspectRatio="xMidYMid meet">
           <title>Great Hollow surface and underground crystal locations</title>
           <image href="./assets/Great_Hollow_surface_and_underground_clean.png" x="0" y="0" width="887" height="1774" preserveAspectRatio="none" pointer-events="none" />
           <g id="location-layer"></g>
           <g id="star-layer" aria-hidden="true" pointer-events="none"></g>
         </svg>
       </div>
-      <p class="map-caption"><span class="star-key" aria-hidden="true">✳</span> Yellow asterisk = a surface spot unique to one layout. An outlined crystal cluster with a check mark is one you confirmed.</p>
+      <p class="map-caption"><span class="star-key" aria-hidden="true">✳</span> Yellow asterisk = a surface spot unique to one layout. Blue check = crystal present. Red × = confirmed empty. Tap either again to clear.</p>
     </section>
   </main>
 </body>

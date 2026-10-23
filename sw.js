@@ -1,5 +1,5 @@
 'use strict';
-const CACHE_NAME = 'great-hollow-crystals-v2';
+const CACHE_NAME = 'great-hollow-crystals-v3';
 const FILES = [
   './', './index.html', './styles.css', './app.js',
   './assets/Great_Hollow_surface_and_underground_clean.png',

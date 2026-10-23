@@ -21,3 +21,13 @@ Layout A = Purple, B = Blue, C = Red, D = Green. Each layout contains eight loca
 On phones and portrait tablets, the map begins immediately under a sticky compact toolbar showing the current layout status and a reset icon. Instructions, legend, and asterisk explanation follow the map; the wider desktop layout retains the sidebar. Both reset controls have the accessible name **Reset crystal selections**.
 
 The interactive SVG has a fixed `viewBox="0 0 887 1774"`; all 21 cluster coordinates, image sizes, offset order, and identification star centers use the supplied reconstruction data. The **clean** composite map (without crystals baked into it) is the SVG background.
+
+## Presence and absence observations
+
+- Tap a crystal position to mark that a crystal **is present** there (blue check).
+- Hold a position for about **550 ms** to mark it **empty** (red X).
+- Tap either kind of marked position to clear the observation. A hold also switches a present mark to empty.
+- Moving to scroll cancels a pending hold; holding does not also register a tap.
+- All observations filter the possible layouts. Inconsistent observations produce a no-match state without discarding marks.
+- Keyboard: Enter or Space to mark present/clear a mark, X to mark empty/clear an empty mark.
+- Reset removes both kinds of observation.

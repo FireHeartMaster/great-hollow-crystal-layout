@@ -41,7 +41,11 @@ const identifierCenters = new Map([
 ]);
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
-const selectedLocationIds = new Set();
+// Both kinds of observations are recorded explicitly, and always recalculated.
+const observedPresentIds = new Set();
+const observedAbsentIds = new Set();
+const LONG_PRESS_MS = 550;
+const PRESS_MOVE_TOLERANCE = 12;
 const elementsById = new Map();
 const starElementsById = new Map();
 const locationLayer = document.getElementById('location-layer');
@@ -64,15 +68,14 @@ function svgElement(tag, attrs = {}) {
   return element;
 }
 
-function calculatePossibleSets(selectedIds) {
-  if (selectedIds.size === 0) return new Set(ALL_SETS);
-
-  // Always recompute from all selections; never incrementally restore/eliminate.
+function calculatePossibleSets(presentIds, absentIds) {
   let possible = new Set(ALL_SETS);
   for (const location of locations) {
-    if (!selectedIds.has(location.id)) continue;
+    if (!presentIds.has(location.id) && !absentIds.has(location.id)) continue;
     const locationSets = new Set(location.icons.map(icon => icon.set));
-    possible = new Set([...possible].filter(set => locationSets.has(set)));
+    possible = new Set([...possible].filter(set =>
+      presentIds.has(location.id) ? locationSets.has(set) : !locationSets.has(set)
+    ));
   }
   return possible;
 }
@@ -135,11 +138,65 @@ function makeLocation(location) {
     'aria-hidden': 'true'
   }));
 
-  group.addEventListener('click', () => toggleLocation(location.id));
+  // A red X makes an observed-empty location visible even when its crystals vanish.
+  const absentMark = svgElement('g', { class: 'selection-absent-mark', 'aria-hidden': 'true' });
+  absentMark.append(
+    svgElement('circle', { cx: checkX, cy: checkY, r: 19 }),
+    svgElement('path', { d: `M ${checkX - 8} ${checkY - 8} l 16 16 M ${checkX + 8} ${checkY - 8} l -16 16` })
+  );
+  group.append(absentMark);
+
+  // Pointer Events work with both touch and mouse. Long-press must not also click.
+  let timer = null;
+  let start = null;
+  let suppressClick = false;
+  function cancelPendingPress() {
+    if (timer !== null) clearTimeout(timer);
+    timer = null;
+    start = null;
+  }
+  group.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button !== 0) return;
+    cancelPendingPress();
+    suppressClick = false;
+    start = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    timer = setTimeout(() => {
+      if (!start) return;
+      cancelPendingPress();
+      suppressClick = true;
+      toggleAbsent(location.id);
+    }, LONG_PRESS_MS);
+  });
+  group.addEventListener('pointermove', event => {
+    if (!start || event.pointerId !== start.id) return;
+    if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > PRESS_MOVE_TOLERANCE) {
+      cancelPendingPress();
+      suppressClick = true;
+    }
+  });
+  group.addEventListener('pointerup', event => {
+    if (start && event.pointerId === start.id) cancelPendingPress();
+  });
+  group.addEventListener('pointercancel', () => {
+    if (start) { cancelPendingPress(); suppressClick = true; }
+  });
+  group.addEventListener('pointerleave', () => {
+    if (start) { cancelPendingPress(); suppressClick = true; }
+  });
+  group.addEventListener('click', () => {
+    if (suppressClick) { suppressClick = false; return; }
+    togglePresent(location.id);
+  });
+  // Suppress native long-touch context menus, not page panning or pinch zoom.
+  group.addEventListener('contextmenu', event => event.preventDefault());
+  group.addEventListener('dragstart', event => event.preventDefault());
   group.addEventListener('keydown', event => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      toggleLocation(location.id);
+      togglePresent(location.id);
+    } else if (event.key.toLowerCase() === 'x' && !event.altKey && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+      toggleAbsent(location.id);
     }
   });
   elementsById.set(location.id, { group, sprites, size });
@@ -153,35 +210,52 @@ function makeLocation(location) {
   }
 }
 
-function toggleLocation(id) {
-  if (selectedLocationIds.has(id)) selectedLocationIds.delete(id);
-  else selectedLocationIds.add(id);
+function togglePresent(id) {
+  // A tap on either kind of marked location clears the observation.
+  if (observedPresentIds.has(id)) observedPresentIds.delete(id);
+  else if (observedAbsentIds.has(id)) observedAbsentIds.delete(id);
+  else observedPresentIds.add(id);
   render();
 }
 
-function labelForLocation(location, selected) {
-  const labelSets = [...new Set(location.icons.map(icon => icon.set))].sort();
-  const setsText = labelSets.length === 1
-    ? `set ${labelSets[0]}`
-    : `sets ${labelSets.slice(0, -1).join(', ')} and ${labelSets.at(-1)}`;
-  return `${location.panel === 'surface' ? 'Surface' : 'Underground'} crystal location ${location.id.toUpperCase()}, possible ${setsText}, ${selected ? 'selected' : 'not selected'}.`;
+function toggleAbsent(id) {
+  // A hold converts present to absent, or clears a previous absent mark.
+  if (observedAbsentIds.has(id)) observedAbsentIds.delete(id);
+  else {
+    observedPresentIds.delete(id);
+    observedAbsentIds.add(id);
+  }
+  render();
+}
+
+function labelForLocation(location, state) {
+  const letterSets = [...new Set(location.icons.map(icon => icon.set))].sort();
+  const setLabel = letterSets.length === 1
+    ? `set ${letterSets[0]}`
+    : `sets ${letterSets.slice(0, -1).join(', ')} and ${letterSets.at(-1)}`;
+  const observation = state === 'present' ? 'confirmed present' :
+    state === 'absent' ? 'confirmed empty' : 'not marked';
+  return `${location.panel === 'surface' ? 'Surface' : 'Underground'} crystal location ${location.id.toUpperCase()}, possible ${setLabel}, ${observation}. Tap to ${state === 'unmarked' ? 'mark present' : 'clear'}. Hold or press X to ${state === 'absent' ? 'clear empty mark' : 'mark empty'}.`;
 }
 
 function render() {
-  const possibleSets = calculatePossibleSets(selectedLocationIds);
+  const possibleSets = calculatePossibleSets(observedPresentIds, observedAbsentIds);
   let possibleLocationCount = 0;
 
   for (const location of locations) {
     const { group, sprites, size } = elementsById.get(location.id);
-    const selected = selectedLocationIds.has(location.id);
+    const present = observedPresentIds.has(location.id);
+    const absent = observedAbsentIds.has(location.id);
+    const state = present ? 'present' : absent ? 'absent' : 'unmarked';
     const activeIcons = location.icons.filter(icon => possibleSets.has(icon.set));
-    const visible = activeIcons.length > 0 || selected;
+    const visible = activeIcons.length > 0 || present || absent;
     if (activeIcons.length) possibleLocationCount++;
 
     group.style.display = visible ? '' : 'none';
-    group.classList.toggle('is-selected', selected);
-    group.setAttribute('aria-pressed', String(selected));
-    group.setAttribute('aria-label', labelForLocation(location, selected));
+    group.classList.toggle('is-present', present);
+    group.classList.toggle('is-absent', absent);
+    group.setAttribute('aria-pressed', String(present || absent));
+    group.setAttribute('aria-label', labelForLocation(location, state));
 
     // Rebuild sprites in original paint order at the exact supplied coordinates.
     sprites.replaceChildren(...activeIcons.map(icon => svgElement('image', {
@@ -208,10 +282,11 @@ function render() {
 
   statusPanel.classList.toggle('is-identified', possibleSets.size === 1);
   statusPanel.classList.toggle('is-impossible', possibleSets.size === 0);
-  selectionCounter.textContent = `${selectedLocationIds.size} confirmed`;
+  const observationSummary = `${observedPresentIds.size} present · ${observedAbsentIds.size} empty`;
+  selectionCounter.textContent = observationSummary;
   mobileStatusPanel.classList.toggle('is-identified', possibleSets.size === 1);
   mobileStatusPanel.classList.toggle('is-impossible', possibleSets.size === 0);
-  mobileStatusDetail.textContent = `${selectedLocationIds.size} confirmed`;
+  mobileStatusDetail.textContent = observationSummary;
   if (possibleSets.size === 0) {
     mobileStatusTitle.textContent = 'No match';
     mobileStatusPanel.setAttribute('aria-label', 'No layout matches these selections');
@@ -230,7 +305,7 @@ function render() {
   if (possibleSets.size === 0) {
     statusKicker.textContent = 'NO MATCH';
     statusTitle.textContent = 'No layout matches these selections';
-    statusDetail.textContent = 'All confirmed spots stay selected. Tap one again to undo, or reset.';
+    statusDetail.textContent = 'Observations conflict. Both kinds of marks remain tappable; tap any mark to clear it or reset.';
   } else if (possibleSets.size === 1) {
     const set = [...possibleSets][0];
     statusKicker.textContent = 'LAYOUT IDENTIFIED';
@@ -246,7 +321,8 @@ function render() {
 for (const location of locations) makeLocation(location);
 for (const button of document.querySelectorAll('[data-reset-selections]')) {
   button.addEventListener('click', () => {
-    selectedLocationIds.clear();
+    observedPresentIds.clear();
+    observedAbsentIds.clear();
     render();
   });
 }
