@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10161b">
+  <meta name="description" content="Identify the active Great Hollow resonating crystal layout in Elden Ring Nightreign. Works offline.">
+  <title>Great Hollow Crystal Layout · Nightreign</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <main class="app-shell">
+    <!-- Mobile: the compact status and reset stay in reach while the map scrolls. -->
+    <header class="mobile-toolbar" aria-label="Great Hollow crystal layout controls">
+      <div class="toolbar-row">
+        <div class="toolbar-brand">
+          <h1>Great Hollow</h1>
+          <span>Crystal Layout</span>
+        </div>
+        <div class="toolbar-actions">
+          <div class="toolbar-status" id="mobile-status-panel" role="status" aria-live="polite" aria-atomic="true">
+            <strong id="mobile-status-title">4 possible</strong>
+            <span id="mobile-status-detail">0 confirmed</span>
+          </div>
+          <button class="reset-button mobile-reset" id="mobile-reset-button" data-reset-selections type="button" aria-label="Reset crystal selections" title="Reset crystal selections">
+            <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 11a9 9 0 1 1 3 6.7"></path>
+              <path d="M3 4v7h7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p class="toolbar-instruction">Tap confirmed crystals. Tap again to undo.</p>
+    </header>
+
+    <aside class="controls" aria-label="Crystal layout controls">
+      <header class="intro">
+        <p class="eyebrow">ELDEN RING NIGHTREIGN <span aria-hidden="true">/</span> FIELD GUIDE</p>
+        <h1>Great Hollow<br>Crystal Layout</h1>
+        <h2 class="mobile-guide-heading">Guide &amp; legend</h2>
+        <p class="instructions">Tap every location where you confirm a crystal. Tap again to undo.</p>
+      </header>
+
+      <section class="layout-panel" aria-labelledby="layout-heading">
+        <div class="section-heading">
+          <h2 id="layout-heading">Possible layouts</h2>
+          <span class="section-note">4 total</span>
+        </div>
+        <div class="layout-chips" id="layout-chips" aria-label="Layout possibilities">
+          <span class="layout-chip" data-set="A"><span class="chip-dot purple"></span><strong>A</strong><span class="chip-separator" aria-hidden="true">·</span>Purple</span>
+          <span class="layout-chip" data-set="B"><span class="chip-dot blue"></span><strong>B</strong><span class="chip-separator" aria-hidden="true">·</span>Blue</span>
+          <span class="layout-chip" data-set="C"><span class="chip-dot red"></span><strong>C</strong><span class="chip-separator" aria-hidden="true">·</span>Red</span>
+          <span class="layout-chip" data-set="D"><span class="chip-dot green"></span><strong>D</strong><span class="chip-separator" aria-hidden="true">·</span>Green</span>
+        </div>
+      </section>
+
+      <section id="status-panel" class="status-panel" role="status" aria-live="polite" aria-atomic="true">
+        <span class="status-kicker" id="status-kicker">CURRENT MATCH</span>
+        <p class="status-title" id="status-title">4 layouts possible</p>
+        <p class="status-detail" id="status-detail">21 possible crystal locations shown.</p>
+      </section>
+
+      <div class="action-row">
+        <button class="reset-button" type="button" id="reset-button" data-reset-selections aria-label="Reset crystal selections">
+          <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11a9 9 0 1 1 3 6.7"></path>
+            <path d="M3 4v7h7"></path>
+          </svg>
+          <span>Reset selections</span>
+        </button>
+        <span class="selection-counter" id="selection-count">0 confirmed</span>
+      </div>
+      <p class="hint"><strong>Observation only.</strong> Select a spot only when you see a crystal there, not when it is empty.</p>
+      <p class="mobile-star-note"><span class="star-key" aria-hidden="true">✳</span> Yellow asterisks mark surface spots unique to one layout. A bright outline and check mark indicate a confirmed crystal location.</p>
+    </aside>
+
+    <section class="map-column" aria-labelledby="map-heading">
+      <div class="map-heading-row">
+        <h2 id="map-heading">Crystal locations</h2>
+        <span>Surface + Underground</span>
+      </div>
+      <div class="map-frame">
+        <svg id="crystal-map" viewBox="0 0 887 1774" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="Great Hollow interactive crystal map. Select locations with a confirmed crystal." preserveAspectRatio="xMidYMid meet">
+          <title>Great Hollow surface and underground crystal locations</title>
+          <image href="./assets/Great_Hollow_surface_and_underground_clean.png" x="0" y="0" width="887" height="1774" preserveAspectRatio="none" pointer-events="none" />
+          <g id="location-layer"></g>
+          <g id="star-layer" aria-hidden="true" pointer-events="none"></g>
+        </svg>
+      </div>
+      <p class="map-caption"><span class="star-key" aria-hidden="true">✳</span> Yellow asterisk = a surface spot unique to one layout. An outlined crystal cluster with a check mark is one you confirmed.</p>
+    </section>
+  </main>
+</body>
+</html>
